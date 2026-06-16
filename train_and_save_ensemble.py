@@ -28,7 +28,7 @@ for col in df.select_dtypes(include='object'):
     le = LabelEncoder()
     df[col] = le.fit_transform(df[col])
     
-encoders[col] = le
+    encoders[col] = le
 
 X = df.drop('accident_occurred', axis=1)
 y = df['accident_occurred']
