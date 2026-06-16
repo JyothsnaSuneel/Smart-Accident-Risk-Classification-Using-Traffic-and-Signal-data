@@ -20,13 +20,19 @@ df = df.dropna(subset=['accident_occurred'])
 # Fill and encode
 for col in df.select_dtypes(include='number'):
     df[col].fillna(df[col].median(), inplace=True)
+encoders = {}
+
 for col in df.select_dtypes(include='object'):
     df[col].fillna(df[col].mode()[0], inplace=True)
-    df[col] = LabelEncoder().fit_transform(df[col])
 
-# Split
+    le = LabelEncoder()
+    df[col] = le.fit_transform(df[col])
+    
+encoders[col] = le
+
 X = df.drop('accident_occurred', axis=1)
 y = df['accident_occurred']
+
 X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, test_size=0.25, random_state=42)
 
 # Balance data
@@ -35,7 +41,7 @@ X_train_res, y_train_res = smoteenn.fit_resample(X_train, y_train)
 
 # Models
 cat = CatBoostClassifier(iterations=500, learning_rate=0.05, depth=6, l2_leaf_reg=3,
-                         border_count=128, class_weights=[1, 20], verbose=0, random_state=42)
+                         border_count=128, verbose=0, random_state=42)
 lgb = LGBMClassifier(n_estimators=500, learning_rate=0.05, num_leaves=31, max_depth=10,
                      min_child_samples=10, subsample=0.8, colsample_bytree=0.8,
                      class_weight='balanced', random_state=42)
@@ -66,6 +72,10 @@ import joblib
 project_path = r"C:\Users\sunee\SmartAccidentStreamlitApp"
 model_folder = os.path.join(project_path, "models")
 os.makedirs(model_folder, exist_ok=True)
+
+# Save encoders
+joblib.dump(encoders, os.path.join(model_folder, "label_encoders.pkl"))
+print("✅ label_encoders.pkl saved")
 
 # Save full path
 feature_path = os.path.join(model_folder, "feature_names.pkl")

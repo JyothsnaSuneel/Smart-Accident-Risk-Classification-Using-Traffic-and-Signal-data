@@ -49,6 +49,51 @@ categorical_options = {
 }
 
 boolean_features = ["has_signal", "is_peak"]
+state_map = {
+    'Andhra Pradesh': 0,
+    'Karnataka': 1,
+    'Tamil Nadu': 2,
+    'Telangana': 3
+}
+
+road_type_map = {
+    'highway': 0,
+    'rural': 1,
+    'urban': 2
+}
+
+enforcement_map = {
+    'high': 0,
+    'low': 1,
+    'medium': 2
+}
+
+season_map = {
+    'rainy': 0,
+    'summer': 1,
+    'winter': 2
+}
+
+lighting_map = {
+    'daylight': 0,
+    'night': 1
+}
+
+weather_map = {
+    'clear': 0,
+    'foggy': 1,
+    'rainy': 2
+}
+
+day_map = {
+    'Friday': 0,
+    'Monday': 1,
+    'Saturday': 2,
+    'Sunday': 3,
+    'Thursday': 4,
+    'Tuesday': 5,
+    'Wednesday': 6
+}
 
 for feature in feature_names:
     if feature in categorical_options:
@@ -65,11 +110,30 @@ if st.button("🔍 Predict Accident Risk"):
         input_df = pd.DataFrame([input_data])
 
         # Encode categorical/boolean to match training phase
-        for col in input_df.columns:
-            if input_df[col].dtype == bool:
-                input_df[col] = input_df[col].astype(int)
-            elif input_df[col].dtype == object:
-                input_df[col] = pd.factorize(input_df[col])[0]
+       for col in input_df.columns:
+    if input_df[col].dtype == bool:
+        input_df[col] = input_df[col].astype(int)
+
+if "state" in input_df.columns:
+    input_df["state"] = input_df["state"].map(state_map)
+
+if "road_type" in input_df.columns:
+    input_df["road_type"] = input_df["road_type"].map(road_type_map)
+
+if "enforcement_level" in input_df.columns:
+    input_df["enforcement_level"] = input_df["enforcement_level"].map(enforcement_map)
+
+if "season" in input_df.columns:
+    input_df["season"] = input_df["season"].map(season_map)
+
+if "lighting" in input_df.columns:
+    input_df["lighting"] = input_df["lighting"].map(lighting_map)
+
+if "weather" in input_df.columns:
+    input_df["weather"] = input_df["weather"].map(weather_map)
+
+if "day_of_week" in input_df.columns:
+    input_df["day_of_week"] = input_df["day_of_week"].map(day_map)
 
         # Reorder columns as trained
         input_df = input_df[feature_names]
